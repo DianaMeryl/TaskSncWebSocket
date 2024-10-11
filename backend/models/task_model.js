@@ -26,8 +26,18 @@ const Task = sequelize.define('tasks', {
     allowNull: true
   },
   status: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: DataTypes.BOOLEAN,
+    allowNull: false, 
+    defaultValue: false
+  },
+  completedBy: {
+    type: DataTypes.INTEGER, 
+    allowNull: true,
+    references: {
+      model: 'users', 
+      key: 'userID'
+    },
+    onDelete: 'SET NULL'
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -41,7 +51,6 @@ const Task = sequelize.define('tasks', {
   } 
 },   { 
   tableName: 'tasks' 
-}
-);
+});
 
 module.exports = Task;

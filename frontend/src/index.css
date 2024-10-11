@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.line-through-color {
+    text-decoration: line-through;
+    text-decoration-color: red; 
+  }
+

@@ -16,7 +16,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'users', // Назва таблиці, на яку ссилаємося
+          model: 'users', 
           key: 'userID'
         },
         onUpdate: 'CASCADE',
@@ -31,9 +31,19 @@ module.exports = {
         allowNull: true
       },
       status: {
-        type: Sequelize.STRING,
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: 'pending' // Можливе значення за замовчуванням
+        defaultValue: false 
+      },
+      completedBy: {
+        type: Sequelize.INTEGER,
+        allowNull: true, 
+        references: {
+          model: 'users', 
+          key: 'userID'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL' 
       },
       createdAt: {
         type: Sequelize.DATE,

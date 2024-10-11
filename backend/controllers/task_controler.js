@@ -2,23 +2,25 @@
 /* eslint-disable no-undef */
 const TaskService = require('../services/task_service');
 
-
 async function addingTaskItem(req, res, next) {
   try {
+    console.log('Adding task: ', req.body);
+    
     const userID =req.user.userID; 
 
-    const {
-      title, description, status 
-    } = req.body;
+    console.log('userID: ', userID);
 
-    if (!userID || !title || !description || !status ) {
+    const {title, description} = req.body;
+
+    if (!userID || !title || !description ) {
       throw new Error('all data  are required');
     }
 
-    const taskData = await TaskService.saveTask( userID, title, description, status);
+    const taskData = await TaskService.saveTask( userID, title, description);
+
     return res.json(taskData);
   } catch (err) {
-
+    console.error('Error in addingTaskItem:', err);
     return res.status(500).json({
       message: err.message 
     });
@@ -28,7 +30,7 @@ async function addingTaskItem(req, res, next) {
 async function removeTaskItem(req, res, next) {
   try {
     const { taskID } = req.params;
-        
+    console.log(taskID);
     const taskData = await TaskService.removeTask(taskID);
 
     return res.json(taskData);
@@ -52,9 +54,8 @@ async function findTaskItem(req, res, next) {
 
 async function findAllTaskItems(req, res, next) {
   try {
-    const userID =req.user.userID; 
     
-    const taskData = await TaskService.getAllTasks(userID);
+    const taskData = await TaskService.getAllTasks();
 
     return res.json(taskData);
 
@@ -66,15 +67,12 @@ async function findAllTaskItems(req, res, next) {
 
 async function updateOneTask(req, res) {
   const { taskID } = req.params;
-  const {
-    title, description, status 
-  } = req.body;
+  const {title, description} = req.body;
 
   try {
     const newTask = await TaskService.updateTask(taskID, {
       title,
-      description,
-      status
+      description
     });
 
     res.status(200).json(newTask);
@@ -88,10 +86,62 @@ async function updateOneTask(req, res) {
   }
 };
 
+async function taskCompleted(req, res) {
+  const { completedBy } = req.body;
+  const { taskID } = req.params;
+
+  try {
+    const task = await TaskService.getTask(taskID);
+
+    if (task) {
+      task.status = true;
+      task.completedBy = completedBy;
+      await task.save();
+      
+      res.status(200).json({
+        message: 'Task marked as completed' 
+      });
+    } else {
+      res.status(404).json({
+        message: 'Task not found' 
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error updating task' 
+    });
+  }
+};
+
+async function taskIncompleted(req, res) {
+  const { taskID } = req.params;
+  try {
+    const task = await TaskService.getTask(taskID);
+    if (task) {
+      task.status = false;
+      task.completedBy = null;
+      await task.save();
+      res.status(200).json({
+        message: 'Task marked as incomplete' 
+      });
+    } else {
+      res.status(404).json({
+        message: 'Task not found' 
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error updating task' 
+    });
+  }
+};
+
 module.exports = {
   addingTaskItem,
   removeTaskItem,
   findAllTaskItems,
   findTaskItem,
-  updateOneTask
+  updateOneTask,
+  taskCompleted,
+  taskIncompleted
 };

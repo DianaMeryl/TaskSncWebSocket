@@ -1,18 +1,17 @@
 /* eslint-disable no-undef */
-const Task = require('../models/task_model');
+const {Task, User} = require('../models');
 
-async function saveTask(userID, title, description, status) {
+async function saveTask(userID, title, description) {
   try {
 
-    if (!userID || !title || !description || !status ) {
+    if (!userID || !title || !description ) {
       throw new Error('all data are required');
     }
 
     const taskData = await Task.create({
       userID,
       title,
-      description,
-      status
+      description
     });
 
     return taskData;
@@ -26,7 +25,7 @@ async function saveTask(userID, title, description, status) {
 
 
 async function removeTask(taskID){
-  try {
+  try { 
     const taskData = await Task.destroy({
       where: {
         taskID
@@ -55,13 +54,22 @@ async function findTask(title){
   return taskData;
 }
 
-async function getAllTasks(userID){
+async function getAllTasks(){
   try {
 
     const tasks = await Task.findAll({
-      where: {
-        userID: userID
-      }
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['nickName']  
+        },
+        {
+          model: User,
+          as: 'completer',
+          attributes: ['nickName'] 
+        }
+      ]
     });
     return tasks;
   } catch (error) {
@@ -78,13 +86,26 @@ async function updateTask(taskID, task) {
       taskID: taskID
     } 
   });
-
 }
+
+async function getTask(taskID) { 
+  try {
+    const task = await Task.findByPk(taskID);
+    return task;
+  } catch (error) {
+        
+    console.error('Error getting task:', error);
+    throw error;
+  }
+};
+
+
 
 module.exports = {
   saveTask,
   removeTask,
   findTask,
   getAllTasks, 
-  updateTask
+  updateTask,
+  getTask
 };

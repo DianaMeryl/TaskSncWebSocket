@@ -4,16 +4,19 @@ const tokenService = require('../services/token_service');
 
 module.exports = function(req, res, next){
   try{
-    const authorifizationHeader = req.headers.authorization;
+    const token = req.cookies.accessToken;
 
-    if(!authorifizationHeader){
+    if(!token){
       return next(ApiError.UnauthorizedError());
     }
-    const accessToken = authorifizationHeader.split(' ')[1];
-    if(!accessToken){
-      return next(ApiError.UnauthorizedError());
+
+    const userData = tokenService.validateAccessToken(token);
+
+    if (userData.role !== 'admin') {
+      return res.status(403).json({
+        message: 'Access forbidden: Admins only' 
+      });
     }
-    const userData = tokenService.validateAccessToken(accessToken);
     if(!userData){
       return next(ApiError.UnauthorizedError());
     }

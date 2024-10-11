@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 const jwt = require('jsonwebtoken');
-const tokenModel = require('../models/token_model');
+const {Token}  = require('../models');
 
 function generateTokens(payload){
   const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
@@ -18,8 +18,9 @@ function generateTokens(payload){
 }
 
 async function saveToken(userID, refreshToken){
+
   try {
-    const tokenData = await tokenModel.findOne({
+    const tokenData = await Token.findOne({
       where: {
         userID
       } 
@@ -28,9 +29,9 @@ async function saveToken(userID, refreshToken){
       tokenData.refreshToken = refreshToken;
       return await tokenData.save();
     }
-    const token = await tokenModel.create({
-      userID,
-      refreshToken 
+    const token = await Token.create({
+      userID: userID,
+      refreshToken: refreshToken
     });
     return token;
   } catch (error) {
@@ -41,7 +42,7 @@ async function saveToken(userID, refreshToken){
 
 async function removeToken(refreshToken){
 
-  const tokenData = await tokenModel.destroy({
+  const tokenData = await Token.destroy({
     where: {
       refreshToken: refreshToken 
     } 
@@ -72,7 +73,7 @@ function validateRefreshToken(token){
 
 async function findToken(refreshToken){
 
-  const tokenData = await tokenModel.findOne({
+  const tokenData = await Token.findOne({
     refreshToken
   });
 

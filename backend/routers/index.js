@@ -10,12 +10,13 @@ const authMiddleware = require('../middlewares/auth_middleware');
 router.post('/registration', userValidationRules(), userController.registration);
 router.post('/login', userController.login);
 router.post('/logout', userController.logout);
-router.get('/refresh', userController.refresh);
 router.get('/users', authMiddleware, userController.getUsers);
-router.get('/alltasks', authMiddleware, taskController.findAllTaskItems);
+router.get('/alltasks', taskController.findAllTaskItems);
 router.post('/addtask',  authMiddleware, taskController.addingTaskItem);
-router.put('/tasks/:taskID', taskController.updateOneTask);
-router.delete('/removetask/:taskID', taskController.removeTaskItem);
-router.delete('/removeuser/:userID', userController.removeUser);
+router.put('/tasks/:taskID', authMiddleware,taskController.updateOneTask);
+router.delete('/removetask/:taskID', authMiddleware,taskController.removeTaskItem);
+router.delete('/removeuser/:userID', authMiddleware, userController.removeUser);
+router.post('/tasks/:taskID/complete', taskController.taskCompleted);
+router.post('/tasks/:taskID/incomplete', taskController.taskIncompleted);
 
 module.exports = router;

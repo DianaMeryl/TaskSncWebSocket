@@ -1,12 +1,11 @@
 /* eslint-disable no-undef */
-const User = require('../models/users_model');
+const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token_service');
 const ApiError = require('../exceptions/api_error');
 const UserDto = require('../dtos/user_dto');
 
-
-async function registration(nickName, passwordHash) {
+async function registration(nickName, password) {
 
   const candidate = await User.findOne({
     where: {
@@ -18,11 +17,11 @@ async function registration(nickName, passwordHash) {
     throw ApiError.BadRequest('Користувач з таким іменем вже існує!');
   }
 
-  const hashPassword = await bcrypt.hash(passwordHash, 3);
+  const hashPassword = await bcrypt.hash(password, 3);
 
   const user = await User.create({  
     nickName,
-    passwordHash: hashPassword 
+    passwordHash: hashPassword
   });
 
   const userDto = new UserDto(user);
@@ -46,7 +45,7 @@ async function registration(nickName, passwordHash) {
   };
 }
 
-async function login(nickName, passwordHash) {
+async function login(nickName, password) {
 
   const user = await User.findOne({
     where: {
@@ -57,7 +56,7 @@ async function login(nickName, passwordHash) {
   if(!user){
     throw ApiError.BadRequest('Користувача з такими даними не знайдено!');
   }
-  const isPassequals = await bcrypt.compare(passwordHash, user.passwordHash);
+  const isPassequals = await bcrypt.compare(password, user.passwordHash);
 
   if(!isPassequals){
     throw ApiError.BadRequest('Невірний пароль!');
@@ -79,30 +78,6 @@ async function logout(refreshToken) {
   const token = await tokenService.removeToken(refreshToken);
 
   return token;
-}
-
-async function refresh(refreshToken) {
-
-  if(!refreshToken){
-    throw ApiError.UnauthorizedError();
-  }
-
-  const userData = tokenService.validateRefreshToken(refreshToken);
-  const tokenFromDb = await tokenService.findToken(refreshToken);
-  
-  if(!userData || !tokenFromDb){
-    throw ApiError.UnauthorizedError();
-  }
-  const user = await User.findById(userData.userID);
-  const userDto = new UserDto(user);
-  const tokens = tokenService.generateTokens({
-    ...userDto
-  });
-  await tokenService.saveToken(userDto.userID, tokens.refreshToken);
-  return {
-    ...tokens,
-    user: userDto
-  };
 }
 
 async function getAllUsers() {
@@ -138,7 +113,6 @@ module.exports = {
   registration,
   logout,
   login,
-  refresh,
   getAllUsers,
   removeUser
 };
