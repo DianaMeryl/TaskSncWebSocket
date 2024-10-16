@@ -9,13 +9,8 @@ export default function Header() {
 
   const currentUser = useSelector(state => state.currentUser);
   const isLoggedIn = useSelector(state => state.isLoggedIn);
-  const history = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  
-  console.log("Current User in Header:", currentUser.nickName);
-  console.log("Is Logged In:", isLoggedIn);
-
-console.log(isLoggedIn);
 
 const logout = async () => {
   try {
@@ -27,23 +22,22 @@ const logout = async () => {
   }
 };
   const handleLogin = () => {
-    history("/login");
+    navigate("/login");
   };
 
   const handleRegistration = () => {
-    history("/home");
+    navigate("/home");
   };
 
   const handleLogout = async () => {
     try {
-      // Виклик API для логауту
+
       await logout();
-      
-      // Очищення стану користувача в Redux
+
       dispatch(logoutUser());
+
+      navigate('/login');
       
-      // Перенаправлення на сторінку логіну
-      history('/login');
     } catch (error) {
       console.error('Error during logout:', error.message);
     }

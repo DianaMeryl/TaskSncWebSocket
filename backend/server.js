@@ -7,8 +7,7 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const errorHandler = require('./middlewares/error_middlewares');
 const http = require('http');
-const { Task } = require('./models');
-
+const { Task, User } = require('./models');
 
 
 const PORT = process.env.SERVER_PORT || 3001; 
@@ -39,31 +38,54 @@ io.on('connection', async (socket) => {
   
   socket.emit('tasksList', tasks);
 
-  socket.on('markTaskAsCompleted', async ({ taskID, userID }) => {
-    const task = await Task.findByPk(taskID);
-    if (task) {
-      task.completed = true;
-      task.completedBy = userID;
-      await task.save(); 
-
-      io.emit('taskCompleted', {
-        taskID,
-        userID 
+  socket.on('markTaskAsCompleted', async ({ taskID, completedBy }) => {
+    
+    try {
+      const user = await User.findByPk(completedBy, {
+        attributes: ['nickName'] 
       });
+
+      const completedByNickName = user ? user.nickName : 'Unknown';
+
+      await Task.update(
+        {
+          status: true,
+          completedBy: completedBy
+        },
+        {
+          where: {
+            taskID 
+          } 
+        }
+      );
+      const allTasks = await Task.findAll(); 
+
+      const tasksWithNickNames = allTasks.map(task => ({
+        ...task.toJSON(),
+        completedByNickName: task.completedBy === completedBy ? completedByNickName : 'Unknown' // використовуємо змінну
+      }));
+
+      io.emit('updateTasks', tasksWithNickNames); 
+    } catch (error) {
+      console.error('Error marking task as complete:', error);
     }
   });
 
   socket.on('markTaskAsIncompleted', async ({ taskID }) => {
-    const task = await Task.findByPk(taskID);
-    if (task) {
-      task.completed = false;
-      task.completedBy = null;
-      await task.save(); 
+    await Task.update(
+      {
+        status: false,
+        completedBy: null 
+      },  
+      {
+        where: {
+          taskID 
+        } 
+      }
+    );
 
-      io.emit('taskIncompleted', {
-        taskID
-      });
-    }
+    const allTasks = await Task.findAll(); 
+    io.emit('updateTasks', allTasks);
   });
 
   socket.on('newTask', async (newTaskData) => {

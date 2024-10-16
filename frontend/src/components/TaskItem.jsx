@@ -1,12 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
     removeTask,
-    markCompleted,
-    markIncomplete,
+
 } from '../redux/actions';
-import { FaTrash, FaCheck, FaEdit } from 'react-icons/fa';
-import { BiDotsHorizontal } from "react-icons/bi";
+import { FaTrash, FaEdit } from 'react-icons/fa';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -14,7 +12,6 @@ import { Link } from 'react-router-dom';
 const TaskItem = ({ task, index }) => {
 
 const dispatch = useDispatch();
-const currentUser = useSelector(state => state.currentUser);
 
 const removeTaskDB = async () => {
     try {
@@ -35,7 +32,8 @@ return (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b-2 py-2 gap-4 font-roboto text-3xl font-bold h-24 ">
         <div className="flex items-center">
             <span className="mr-4 text-gray-500">{index + 1}.</span>
-            <span className={`mr-4 ${task.status ? 'line-through-color text-gray-300' : ''}`}>{task.title}</span> <span className={`mr-4 ${task.status ? 'line-through-color text-gray-300' : ''}`}>{task.description}</span>
+            <span className={`mr-4`}>{task.title}</span> 
+            <span className={`mr-4`}>{task.description}</span>
         </div>
         <div className="flex space-x-2">
             <Link

@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { fetchTasks, addTaskSuccess } from '../redux/actions';
 import TaskList from '../components/TaskList';
-
+import { Link } from 'react-router-dom';
 
 function Task() {
   const dispatch = useDispatch();
@@ -92,12 +92,17 @@ const handleKeyDown = async (event) => {
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={handleKeyDown}
         />
-        <button
-            className="ml-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+    </div>
+    <button
+            className="w-full mb-6 p-2 bg-blue-500 text-white text-3xl font-bold rounded hover:bg-blue-600 focus:outline-none"
             onClick={handleAddTaskClick}
         >Add
-        </button>
-    </div>
+    </button>
+    <Link
+                to={`/tasktable`}
+                className="flex items-center justify-center bg-green-500 hover:bg-green-700 text-white  text-3xl font-bold py-3 px-4 rounded">
+                Status of Tasks
+            </Link>
     <TaskList />
 </div>
   );

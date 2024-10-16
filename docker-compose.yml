@@ -1,0 +1,51 @@
+services:
+
+  frontend:
+    depends_on:
+      - backend
+    build:
+      context: ./
+      dockerfile: frontend.dockerfile
+    environment:
+      - API_URL=http://localhost:3001/
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  backend:
+    depends_on:
+      - databasedoc
+    build:
+      context: ./
+      dockerfile: backend.dockerfile 
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=databasedoc
+      - DB_PORT=3306
+      - DB_USER=mysql
+      - DB_PASSWORD=1234567
+      - DB_NAME=taskasyncdb
+      - PORT=3001
+
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  databasedoc:
+    image: mysql:latest
+    container_name: databasedoc
+    ports: 
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: taskasyncdb
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: 1234567
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - mysqldata:/var/lib/mysql
+
+volumes:
+  mysqldata:

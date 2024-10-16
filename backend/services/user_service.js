@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 const { User } = require('../models');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const tokenService = require('./token_service');
 const ApiError = require('../exceptions/api_error');
 const UserDto = require('../dtos/user_dto');

@@ -1,9 +1,10 @@
 import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setCurrentUser } from '../redux/actions';
 import axios from 'axios';
+import Modal from './Modal';
 
 export default function LoginForm() {
 
@@ -14,6 +15,14 @@ const[inpValue, setInpValue] = useState({
     nickName:"",
     password:"",
 });
+const [isModalOpen, setIsModalOpen] = useState(false);
+
+const toggleModal = () => {
+    if (isModalOpen) {
+        navigate("/registration");
+    }
+    setIsModalOpen(!isModalOpen);
+  };
 
 const getdata = (e) => {
     const { value, name } = e.target;
@@ -56,6 +65,7 @@ const loginUser = async (nickName, password) => {
 
     } catch (error) {
         console.error('Error:', error.response?.data?.message || error.message);
+        toggleModal();
     }
 };
 
@@ -76,6 +86,7 @@ const confirmData = (e) => {
         }
 }
 return (
+    <>
     <div className="flex">
     <div className="w-full flex items-center justify-center min-h-screen bg-white ">
         <div className="w-full max-w-md">
@@ -119,5 +130,22 @@ return (
         </div>
     </div>
     </div>
+        <Modal isOpen={isModalOpen} onClose={toggleModal}>
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+                    <h2 className="text-lg font-bold text-red-600">Login Error!</h2>
+                    <p className="mt-2 text-gray-700">You need to register to enter!</p>
+                    <div className="mt-4 flex justify-end">
+                        <button 
+                            onClick={toggleModal}
+                            className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Modal>
+</>
 );
 }

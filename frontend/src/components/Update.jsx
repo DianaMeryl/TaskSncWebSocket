@@ -36,11 +36,7 @@ export default function Update() {
           dispatch(updateTask(newTask));
           setTitle('');
           setDescription('');
-          if (currentUser.role === 'admin') {
-            navigate("/task");
-        } else {
-            navigate("/tasktable"); 
-        }
+          navigate("/task");
       } catch (error) {
           console.error('Error adding task:', error.message);
       }
@@ -55,14 +51,13 @@ export default function Update() {
         <div className="flex h-screen bg-info bg-opacity-25 justify-center items-center">
             <div className="w-1/2 bg-danger bg-opacity-25 rounded p-3 text-lg">
                 <form onSubmit={handleUpdateTaskClick} className="space-y-4">
-                    <h2 className="text-primary text-center mb-4 font-bold text-2xl">Update Todo</h2>
+                    <h2 className="text-primary text-center mb-4 font-bold text-2xl">Update Task</h2>
                     <div className='mb-2'>
-                        <label htmlFor="firstName">Your Task</label>
                         <input
                               id="addTaskInput"
-                              className="h-24 flex-grow p-2 border-b-2 border-gray-300 text-3xl italic focus:outline-none focus:border-blue-500"
+                              className="h-24 flex-grow p-2 border-b-2 border-gray-300 text-2xl italic focus:outline-none focus:border-blue-500"
                               type="text"
-                              placeholder="Add Todo"
+                              placeholder="Update Title"
                               value={title}
                               onChange={(e) => setTitle(e.target.value)}
                               onKeyDown={handleKeyDown}
@@ -71,9 +66,9 @@ export default function Update() {
                           <div className="flex items-center mt-10 mb-4">
                           <input
                               id="addTaskInput"
-                              className="h-24 flex-grow p-2 border-b-2 border-gray-300 text-3xl italic focus:outline-none focus:border-blue-500"
+                              className="h-24 flex-grow p-2 border-b-2 border-gray-300 text-2xl italic focus:outline-none focus:border-blue-500"
                               type="text"
-                              placeholder="Add Todo"
+                              placeholder="Update Description"
                               value={description}
                               onChange={(e) => setDescription(e.target.value)}
                               onKeyDown={handleKeyDown}
@@ -83,7 +78,7 @@ export default function Update() {
                         <button type="submit" className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-lg'>Update</button>
                     </div>
                     <div className='flex justify-end mb-3'>
-                        <Link to='/tasktable' className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-lg'>Back</Link>
+                        <Link to='/task' className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-lg'>Back</Link>
                     </div>
                 </form>
             </div>

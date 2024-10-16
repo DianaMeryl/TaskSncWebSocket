@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import io from 'socket.io-client';
 import { useSelector, useDispatch } from "react-redux";
-import { updateTask, markCompleted, markIncomplete, fetchTasks } from '../redux/actions';
+import { updateTask, markCompleted, markIncomplete, fetchTasks, updateTaskCompleted } from '../redux/actions';
 import axios from 'axios';
 import { FaCheck } from 'react-icons/fa';
 import { BiDotsHorizontal } from "react-icons/bi";
@@ -31,45 +31,49 @@ const TaskTable = () => {
     
         getTasks();
 
+        socket.on('updateTasks', (updatedTasks) => {
+            dispatch(updateTask(updatedTasks));
+        });
         socket.on('tasksList', (initialTasks) => {
             dispatch(updateTask(initialTasks)); 
         });
 
-        socket.on('taskCompleted', ({ taskID }) => {
-            dispatch(markCompleted(taskID, currentUser.userID)); 
-        }
-        );
+        socket.on('taskCompleted', ({ taskID, completedBy, completedByNickName }) => {
+            dispatch(markCompleted(taskID, completedBy, completedByNickName)); 
+            dispatch(updateTaskCompleted({ taskID, completedBy, completedByNickName }));
+        });
 
         socket.on('taskIncompleted', ({ taskID }) => {
             dispatch(markIncomplete(taskID)); 
-        }
-        );
+        });
 
         socket.on('newTask', (newTask) => {
             dispatch(updateTask([...tasks, newTask]));
         });
+
 
         return () => {
         socket.off('tasksList');
         socket.off('taskCompleted');
         socket.off('taskIncompleted');
         socket.off('newTask');
+        socket.off('updateTasks');
         };
-    }, []);
+    }, [dispatch, tasks]);
 
-    const markTaskAsCompleted = (taskID) => {
-        socket.emit('markTaskAsCompleted', { taskID, userID: currentUser.userID });
+    const markTaskAsCompleted = (taskID, userID) => {
+        socket.emit('markTaskAsCompleted', { taskID, completedBy: userID });
     };
     const markTaskAsIncompleted = (taskID) => {
         socket.emit('markTaskAsIncompleted', { taskID });
     };
 
-    const toggleTaskStatus = (task) => {
+    const toggleTaskStatus = (task, userID) => {
         
         if (task.status) {
             markTaskAsIncompleted(task.taskID);
         } else {
-            markTaskAsCompleted(task.taskID);
+            markTaskAsCompleted(task.taskID, userID);
         }
     };
 
@@ -93,14 +97,14 @@ const TaskTable = () => {
                                     className={`flex items-center justify-center ${
                                         task.status ? 'bg-green-500 hover:bg-yellow-700' : 'bg-yellow-500 hover:bg-green-700'
                                     } text-white text-3xl font-bold py-2 px-3 rounded`}
-                                    onClick={() => toggleTaskStatus(task)}>
+                                    onClick={() => toggleTaskStatus(task, currentUser.userID)}>
                                     {task.status ? <FaCheck /> : <BiDotsHorizontal />}
                                 </button>
 
                                 {task.status && (
                                     <div>
                                         <em className='text-cyan-400'>Completed by </em> 
-                                        <strong>{task.completedBy ? task.completer.nickName : 'Unknown'}</strong>
+                                        <strong>{task.completer ? task.completer.nickName : 'Unknown'}</strong> 
                                     </div>
                                 )}
                             </div>

@@ -6,7 +6,8 @@ import {
     REMOVE_TASK,
     MARK_COMPLETED,
     MARK_INCOMPLETE,
-    UPDATE_TASK
+    UPDATE_TASK,
+    UPDATE_TASK_COMPLETED
 } from './actionTypes';
 
 const initialState = { 
@@ -57,26 +58,47 @@ const taskReducer = (state = initialState, action) => {
                 ...state,
                 tasks: state.tasks.filter(task => task.taskID !== action.payload.taskID),
             };
-    
-            case MARK_COMPLETED:
+        case MARK_COMPLETED:
             return {
                 ...state,
                 tasks: state.tasks.map((task) =>
-                    task.taskID === action.payload.taskID ? { ...task, status: true  } : task
+                    task.taskID === action.payload.taskID 
+                        ? { 
+                            ...task, 
+                            status: true, 
+                            completedBy: action.payload.completedBy,  
+                            completer: { nickName: action.payload.completedByNickName }  
+                        } 
+                        : task
                 ),
             };
-    
-            case MARK_INCOMPLETE:
+        case MARK_INCOMPLETE:
             return {
                 ...state,
                 tasks: state.tasks.map((task) =>
-                    task.taskID === action.payload.taskID ? { ...task, status: false } : task
+                    task.taskID === action.payload.taskID
+                        ? { ...task, status: false, completedBy: null } 
+                        : task
                 ),
             };
-            case UPDATE_TASK:
-                return { 
-                    ...state, 
-                    tasks: action.payload 
+        case UPDATE_TASK:
+            return { 
+                ...state, 
+                tasks: action.payload 
+        };
+        case UPDATE_TASK_COMPLETED:
+            return {
+                ...state,
+                tasks: state.tasks.map(task =>
+                    task.taskID === action.payload.taskID
+                        ? {
+                            ...task,
+                            completedBy: action.payload.completedBy,
+                            completer: { nickName: action.payload.completedByNickName },  
+                            status: true
+                        }
+                        : task
+                )
             };
         default:
         return state;
